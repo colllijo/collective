@@ -3,7 +3,7 @@
 #include <functional>
 #include <regex>
 
-Tokenizer::Tokenizer() : vocabulary{}, merges{} {}
+Tokenizer::Tokenizer() : vocabulary{}, merges{}, nextTokenId(0), tokenIdMap{}, idTokenMap{} {}
 Tokenizer::~Tokenizer() = default;
 
 void Tokenizer::train(const std::string& corpus, int vocabularySize)
@@ -26,9 +26,11 @@ void Tokenizer::train(const std::string& corpus, int vocabularySize)
 		merges[mostFrequentPair] = mergeToken;
 		vocabulary.insert(mergeToken);
 	}
+
+	buildVocabulary();
 }
 
-std::vector<std::string> Tokenizer::apply(const std::string& text) const
+std::vector<int> Tokenizer::apply(const std::string& text) const
 {
 	std::vector<std::string> tokens = tokenizeText(text);
 
@@ -37,7 +39,21 @@ std::vector<std::string> Tokenizer::apply(const std::string& text) const
 		tokens = mergeTokens(tokens, pair, mergeToken);
 	}
 
-	return tokens;
+	return tokensToIds(tokens);
+}
+
+std::string Tokenizer::decodeTokens(const std::vector<int>& tokenIds) const
+{
+	std::string text;
+	for (const auto& tokenId : tokenIds)
+	{
+		if (idTokenMap.find(tokenId) != idTokenMap.end())
+		{
+			text += idTokenMap.at(tokenId) + " ";
+		}
+	}
+
+	return text;
 }
 
 std::vector<std::string> Tokenizer::tokenizeText(const std::string& text) const
@@ -80,4 +96,40 @@ std::vector<std::string> Tokenizer::mergeTokens(const std::vector<std::string>& 
 		}
 	}
 	return mergedTokens;
+}
+
+void Tokenizer::buildVocabulary()
+{
+	// Special tokens
+	tokenIdMap["<unk>"] = nextTokenId++;
+	tokenIdMap["<bos>"] = nextTokenId++;
+	tokenIdMap["<eos>"] = nextTokenId++;
+
+	for (const auto& token : vocabulary)
+	{
+		if (tokenIdMap.find(token) == tokenIdMap.end())
+		{
+			tokenIdMap[token] = nextTokenId;
+			idTokenMap[nextTokenId] = token;
+			nextTokenId++;
+		}
+	}
+}
+
+std::vector<int> Tokenizer::tokensToIds(const std::vector<std::string>& tokens) const
+{
+	std::vector<int> tokenIds;
+	for (const auto& token : tokens)
+	{
+		if (tokenIdMap.find(token) == tokenIdMap.end())
+		{
+			tokenIds.push_back(tokenIdMap.at("<unk>"));
+		}
+		else
+		{
+			tokenIds.push_back(tokenIdMap.at(token));
+		}
+	}
+
+	return tokenIds;
 }
