@@ -1,0 +1,14 @@
+BasedOnStyle: Google
+
+# Indentation
+IndentWidth: 4
+UseTab: Always
+NamespaceIndentation: All
+AccessModifierOffset: -4
+
+# Brackets
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: Inline
+
+# Line Length
+ColumnLimit: 180

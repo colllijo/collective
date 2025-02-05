@@ -1,0 +1,31 @@
+# CMake build artifacts
+/build/
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/Makefile
+
+# Compiled object files
+*.o
+*.obj
+*.lo
+*.la
+*.al
+*.libs
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+
+# Editor-specific files
+*.swp
+*.swo
+*.swn
+*.un~
+*.bak
+*.tmp
+*.log
+
+# Cache directory
+.cache/
