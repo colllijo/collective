@@ -1,4 +1,5 @@
-#include "embedding/embedding-layer.hpp"
+#include "embedding/EmbeddingLayer.hpp"
+
 #include <random>
 
 EmbeddingLayer::EmbeddingLayer(int vocabularySize, int embeddingDimension) : vocabularySize(vocabularySize), embeddingDimension(embeddingDimension), embeddings{}

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "tokenization/tokenizer.hpp"
+#include "tokenization/Tokenizer.hpp"
 
 int main()
 {
