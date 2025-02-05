@@ -32,3 +32,25 @@ std::vector<float> EmbeddingLayer::getEmbedding(int tokenId) const
 
 	return embeddings[tokenId];
 }
+
+std::vector<std::vector<float>> applyPositionalEncoding(const std::vector<int> tokenIds, const EmbeddingLayer& embeddingLayer, const PositionalEncoding& positionalEncoding)
+{
+	std::vector<std::vector<float>> embeddings;
+
+	for (size_t pos = 0; pos < tokenIds.size(); ++pos)
+	{
+		std::vector<float> embedding = embeddingLayer.getEmbedding(tokenIds[pos]);
+		std::vector<float> positional = positionalEncoding.getEncoding(pos);
+
+		std::vector<float> combinedEmbedding(embedding.size());
+		for (size_t i = 0; i < embedding.size(); ++i)
+		{
+			combinedEmbedding[i] = embedding[i] + positional[i];
+		}
+
+		embeddings.push_back(combinedEmbedding);
+	}
+
+	return embeddings;
+}
+

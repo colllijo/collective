@@ -13,11 +13,13 @@ set(INCLUDE_DIR "include")
 set(SOURCES
   ${SOURCE_DIR}/main.cpp
   ${SOURCE_DIR}/embedding/EmbeddingLayer.cpp
+  ${SOURCE_DIR}/embedding/PositionalEncoding.cpp
   ${SOURCE_DIR}/tokenization/Tokenizer.cpp
 )
 
 set(HEADERS
   ${INCLUDE_DIR}/embedding/EmbeddingLayer.hpp
+  ${INCLUDE_DIR}/embedding/PositionalEncoding.hpp
   ${INCLUDE_DIR}/tokenization/Tokenizer.hpp
 )
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "embedding/PositionalEncoding.hpp"
 
 class EmbeddingLayer
 {
@@ -16,3 +17,5 @@ private:
 
 	std::vector<std::vector<float>> embeddings;
 };
+
+std::vector<std::vector<float>> applyPositionalEncoding(const std::vector<int> tokenIds, const EmbeddingLayer& embeddingLayer, const PositionalEncoding& positionalEncoding);
