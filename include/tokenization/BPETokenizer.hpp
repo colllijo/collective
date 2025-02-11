@@ -36,7 +36,6 @@ private:
 	std::vector<int> mergeTokens(const std::vector<int>& tokens, const std::pair<int, int>& pair, int mergeToken) const;
 
 	void buildBasicVocabulary(const std::set<std::string>& tokens);
-	void buildMergeVocabulary();
 
 	std::vector<std::string> splitText(const std::string& text) const;
 	std::vector<int> tokenizeText(const std::vector<std::string>& text) const;

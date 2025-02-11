@@ -3,9 +3,15 @@
 #include <codecvt>
 #include <deque>
 #include <fstream>
-#include <functional>
 #include <iostream>
 #include <locale>
+
+void printVocabulary(std::unordered_map<int, std::string> idToTokenMap)
+{
+	for (size_t i = 0; i < idToTokenMap.size(); ++i)
+		std::cout << i << ": " << idToTokenMap.at(i) << "\n";
+	std::cout << std::endl;
+}
 
 BPETokenizer::BPETokenizer() : nextTokenId(0), tokenToIdMap{}, idToTokenMap{}, merges{} {}
 BPETokenizer::~BPETokenizer() = default;
@@ -86,11 +92,19 @@ void BPETokenizer::train(const std::string& corpus, int vocabularySize, const st
 		if (!pair.has_value()) break;
 
 		tokens = mergeTokens(tokens, pair.value(), nextTokenId);
+
+		// Update merges
 		merges[pair.value()] = nextTokenId;
+
+		// Update vocabulary
+		std::string mergeToken = idToTokenMap.at(pair.value().first) + idToTokenMap.at(pair.value().second);
+		tokenToIdMap[mergeToken] = nextTokenId;
+		idToTokenMap[nextTokenId] = mergeToken;
+
 		nextTokenId++;
 	}
 
-	buildMergeVocabulary();
+	printVocabulary(idToTokenMap);
 }
 
 void BPETokenizer::saveVocabulary(const std::string& filename) const
@@ -103,7 +117,7 @@ void BPETokenizer::saveVocabulary(const std::string& filename) const
 		file.write(reinterpret_cast<const char*>(&size), sizeof(size));
 
 		// Write the vocabulary to the file
-		for (const auto& [token, id]: tokenToIdMap)
+		for (const auto& [token, id] : tokenToIdMap)
 		{
 			size_t tokenSize = token.size();
 			file.write(reinterpret_cast<const char*>(&tokenSize), sizeof(tokenSize));
@@ -151,7 +165,7 @@ void BPETokenizer::loadVocabulary(const std::string& filename)
 		}
 
 		file.read(reinterpret_cast<char*>(&size), sizeof(size));
-		
+
 		for (size_t i = 0; i < size; ++i)
 		{
 			int left, right, mergeToken;
@@ -220,7 +234,19 @@ std::optional<std::pair<int, int>> BPETokenizer::mostFrequentPair(const std::vec
 
 	for (size_t i = 0; i < tokens.size() - 1; ++i) pairFrequency[std::make_pair(tokens[i], tokens[i + 1])]++;
 
-	return std::max_element(pairFrequency.begin(), pairFrequency.end(), std::greater<>())->first;
+	int maxFrequency = 0;
+	std::pair<int, int> mostFrequentPair;
+	for (const auto& [pair, frequency] : pairFrequency)
+	{
+		if (frequency > maxFrequency)
+		{
+			maxFrequency = frequency;
+			mostFrequentPair = pair;
+		}
+	}
+
+	if (maxFrequency == 1) return std::nullopt;
+	return mostFrequentPair;
 }
 
 std::vector<int> BPETokenizer::mergeTokens(const std::vector<int>& tokens, const std::pair<int, int>& pair, int mergeToken) const
@@ -254,17 +280,6 @@ void BPETokenizer::buildBasicVocabulary(const std::set<std::string>& tokens)
 		tokenToIdMap[token] = nextTokenId;
 		idToTokenMap[nextTokenId] = token;
 		nextTokenId++;
-	}
-}
-
-void BPETokenizer::buildMergeVocabulary()
-{
-	for (const auto& [pair, mergeToken] : merges)
-	{
-		std::string token = idToTokenMap.at(pair.first) + idToTokenMap.at(pair.second);
-
-		tokenToIdMap[token] = mergeToken;
-		idToTokenMap[mergeToken] = token;
 	}
 }
 
